@@ -1,9 +1,14 @@
-main : matrix.o main.o
-	g++ -o main bin/matrix.o bin/obj/main.o
+# Relative filepath to object (.o) files
+objectFolder = bin/obj
+
+# Relative filepath to binary output folder (.dll's/.so's/.exe's)
+buildFolder = bin/build
+
+# Relative filepath to dir containing headers
+includeFolder = include 
+
+main : main.o
+	g++ -o $(buildFolder)/main $(objectFolder)/matrix.o $(objectFolder)/main.o
 
 main.o :
-	g++ -c src/main.cpp -I include -o bin/obj/main.o
-
-# This is a lowest-level dependency
-matrix.o : 
-	g++ -c src/matrix.cpp -I include -o bin/obj/matrix.o
+	g++ -Wall -c src/main.cpp -I $(includeFolder) -o $(objectFolder)/main.o
