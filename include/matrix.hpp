@@ -11,12 +11,14 @@ class Matrix
 private:
     size_t rows;
     size_t cols;
-    std::vector<T> vals;
 
     bool inplaceInvert2();
     bool inplaceInvert3();
     bool inplaceInvert4();
     bool inplaceInvertN();
+
+protected:
+    std::vector<T> vals;
 
 public:
     Matrix(size_t rows, size_t cols);
@@ -33,7 +35,7 @@ public:
     void inplaceRowAdd(size_t add_row, size_t to_row);
     void inplaceScaledRowAdd(size_t add_row, T scaled_by, size_t to_row);
 
-    bool inplaceInvert();
+    bool tryInplaceInvert();
 };
 
 /// @brief Creates a new zero matrix with the given number of rows and columns
@@ -167,9 +169,191 @@ void Matrix<T>::inplaceScaledRowAdd(size_t add_row, T scaled_by, size_t to_row)
     }
 }
 
+/// @brief Helper function for `tryInplaceInvert`
 template<typename T>
-bool Matrix<T>::inplaceInvert()
+bool Matrix<T>::inplaceInvert2()
 {
+    T a11 = this->getIndex(0, 0);
+    T a12 = this->getIndex(0, 1);
+    T a21 = this->getIndex(1, 0);
+    T a22 = this->getIndex(1, 1);
 
+    T det = a11 * a22 - a12 * a21;
+
+    if (det == (T)0)
+    {
+        return false;
+    }
+
+    this->getIndexRef(0, 0) =   a22 / det;
+    this->getIndexRef(1, 0) = - a21 / det;
+    this->getIndexRef(0, 1) = - a12 / det;
+    this->getIndexRef(1, 1) =   a11 / det;
+
+    return true;
 }
+
+/// @brief Helper function for `tryInplaceInvert`
+template<typename T>
+bool Matrix<T>::inplaceInvert3()
+{
+    T a11 = this->getIndex(0, 0);
+    T a12 = this->getIndex(1, 0);
+    T a13 = this->getIndex(2, 0);
+    T a21 = this->getIndex(0, 1);
+    T a22 = this->getIndex(1, 1);
+    T a23 = this->getIndex(2, 1);
+    T a31 = this->getIndex(0, 2);
+    T a32 = this->getIndex(1, 2);
+    T a33 = this->getIndex(2, 2);
+
+    T det = a11*a22*a33 + a21*a32*a13 + a31*a12*a23 
+          - a11*a32*a23 - a31*a22*a13 - a21*a12*a33;
+
+    if (det == (T)0)
+    {
+        return false;
+    }
+
+    this->getIndexRef(0, 0) = (a22 * a33 - a23 * a32) / det;
+    this->getIndexRef(1, 0) = (a23 * a31 - a21 * a33) / det;
+    this->getIndexRef(2, 0) = (a21 * a32 - a22 * a31) / det;
+    this->getIndexRef(0, 1) = (a13 * a32 - a12 * a33) / det;
+    this->getIndexRef(1, 1) = (a11 * a33 - a13 * a31) / det;
+    this->getIndexRef(2, 1) = (a12 * a31 - a11 * a32) / det;
+    this->getIndexRef(0, 2) = (a12 * a23 - a13 * a22) / det;
+    this->getIndexRef(1, 2) = (a13 * a21 - a11 * a23) / det;
+    this->getIndexRef(2, 2) = (a11 * a22 - a12 * a21) / det;
+
+    return true;
+}
+
+/// @brief Helper function for `tryInplaceInvert`
+template<typename T>
+bool Matrix<T>::inplaceInvert4()
+{
+    T a11 = this->getIndex(0, 0);
+    T a12 = this->getIndex(1, 0);
+    T a13 = this->getIndex(2, 0);
+    T a14 = this->getIndex(3, 0);
+    T a21 = this->getIndex(0, 1);
+    T a22 = this->getIndex(1, 1);
+    T a23 = this->getIndex(2, 1);
+    T a24 = this->getIndex(3, 1);
+    T a31 = this->getIndex(0, 2);
+    T a32 = this->getIndex(1, 2);
+    T a33 = this->getIndex(2, 2);
+    T a34 = this->getIndex(3, 2);
+    T a41 = this->getIndex(0, 3);
+    T a42 = this->getIndex(1, 3);
+    T a43 = this->getIndex(2, 3);
+    T a44 = this->getIndex(3, 3);
+
+    T det = a11*a22*a33*a44 + a11*a23*a34*a42 + a11*a24*a32*a43 +
+            a12*a21*a34*a43 + a12*a23*a31*a44 + a12*a24*a33*a41 + 
+            a13*a21*a32*a44 + a13*a22*a34*a41 + a13*a24*a31*a42 + 
+            a14*a21*a33*a42 + a14*a22*a34*a43 + a14*a23*a32*a41 -
+            a11*a22*a34*a43 - a11*a23*a32*a44 - a11*a24*a33*a42 -
+            a12*a21*a33*a44 - a12*a23*a34*a41 - a12*a24*a31*a43 -
+            a13*a21*a34*a42 - a13*a22*a31*a44 - a13*a24*a32*a41 -
+            a14*a21*a32*a43 - a14*a22*a33*a41 - a14*a23*a31*a42;
+
+    if (det == (T)0)
+    {
+        return false;
+    }
+
+    this->getIndex(0, 0) = (a22*a33*a44 + a23*a34*a42 + a24*a32*a43 - a22*a34*a43 - a23*a32*a44 - a24*a33*a42) / det;
+    this->getIndex(1, 0) = (a12*a34*a43 + a13*a32*a44 + a14*a33*a42 - a12*a33*a44 - a13*a34*a42 - a14*a32*a43) / det;
+    this->getIndex(2, 0) = (a12*a23*a44 + a13*a24*a42 + a14*a22*a43 - a12*a24*a43 - a13*a22*a44 - a14*a23*a42) / det;
+    this->getIndex(3, 0) = (a12*a24*a33 + a13*a22*a34 + a14*a23*a32 - a12*a23*a34 - a13*a24*a32 - a14*a22*a33) / det;
+    this->getIndex(0, 1) = (a21*a34*a43 + a23*a31*a44 + a24*a33*a41 - a21*a33*a44 - a23*a34*a41 - a24*a31*a43) / det;
+    this->getIndex(1, 1) = (a11*a33*a44 + a13*a34*a41 + a14*a31*a43 - a11*a34*a43 - a13*a31*a44 - a14*a33*a41) / det;
+    this->getIndex(2, 1) = (a11*a24*a43 + a13*a21*a44 + a14*a23*a41 - a11*a23*a44 - a13*a24*a41 - a14*a21*a43) / det;
+    this->getIndex(3, 1) = (a11*a23*a34 + a13*a24*a31 + a14*a21*a33 - a11*a24*a33 - a13*a21*a34 - a14*a23*a31) / det;
+    this->getIndex(0, 2) = (a21*a32*a44 + a22*a34*a41 + a24*a31*a42 - a21*a34*a42 - a22*a31*a44 - a24*a32*a41) / det;
+    this->getIndex(1, 2) = (a11*a34*a42 + a12*a31*a44 + a14*a32*a41 - a11*a32*a44 - a12*a34*a41 - a14*a31*a42) / det;
+    this->getIndex(2, 2) = (a11*a22*a44 + a12*a24*a41 + a14*a21*a42 - a11*a24*a42 - a12*a21*a44 - a14*a22*a41) / det;
+    this->getIndex(3, 2) = (a11*a24*a32 + a12*a21*a34 + a14*a22*a31 - a11*a22*a34 - a12*a24*a31 - a14*a21*a32) / det;
+    this->getIndex(0, 3) = (a21*a33*a42 + a22*a31*a43 + a23*a32*a41 - a21*a32*a43 - a22*a33*a41 - a23*a31*a42) / det;
+    this->getIndex(1, 3) = (a11*a32*a43 + a12*a33*a41 + a13*a31*a42 - a11*a33*a42 - a12*a31*a43 - a13*a32*a41) / det;
+    this->getIndex(2, 3) = (a11*a23*a42 + a12*a21*a43 + a13*a22*a41 - a11*a22*a43 - a12*a23*a41 - a13*a21*a42) / det;
+    this->getIndex(3, 3) = (a11*a22*a33 + a12*a23*a31 + a13*a21*a32 - a11*a23*a32 - a12*a21*a33 - a13*a22*a31) / det;
+
+    return true;
+}
+
+/// @brief Helper function for `tryInplaceInvert`
+template<typename T>
+bool Matrix<T>::inplaceInvertN()
+{
+    size_t n = rows;
+    Matrix<T> inv = Matrix<T>::identity(n);
+    std::vector<T> backup = vals;
+
+    for (size_t j = 0; j < n; j++)
+    {
+        for (size_t i = 0; i < n; i++)
+        {
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (this->getIndex(i, j) == (T)0)
+            {
+                vals = backup;
+                return false;
+            }
+
+            T scalar = this->getIndex(i, j) / this->getIndex(j, j);
+            this->inplaceRowAdd(i, j, -scalar);
+            inv.inplaceRowAdd(i, j, -scalar);
+        }
+    }
+
+    for (size_t i = 0; i < n; i++)
+    {
+        T scalar = ((T)1) / this->getIndex(i, i);
+        this->inplaceRowScale(i, scalar);
+        inv.inplaceRowScale(i, scalar);
+    }
+
+    this->vals = inv.vals;
+    return true;
+}
+
+/// @brief Tries to invert the matrix, returning a boolean indicating if the 
+/// operation was successful. If the operation fails, the internal data will 
+/// be in the same state as it was prior to the inversion attempt.
+/// @returns A bool indicating if inversion was successful.
+template<typename T>
+bool Matrix<T>::tryInplaceInvert()
+{
+    if (rows != cols)
+    {
+        return false;
+    }
+
+    switch(rows)
+    {
+        case 1:
+            if (vals[0] == 0) return false;
+            vals[0] = 1 / vals[0];
+            return true;
+            
+        case 2:
+            return inplaceInvert2();
+
+        case 3:
+            return inplaceInvert3();
+
+        case 4:
+            return inplaceInvert4();
+
+        default:
+            return inplaceInvertN();
+    }
+}
+
 #endif
