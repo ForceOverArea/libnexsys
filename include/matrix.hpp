@@ -9,26 +9,38 @@ template<typename T>
 class Matrix
 {
 private:
-    size_t rows;
-    size_t cols;
+    // Default constructor to avoid extra allocations. for internal use only
+    Matrix();
 
+    // Helper methods
     bool inplaceInvert2() noexcept;
     bool inplaceInvert3() noexcept;
     bool inplaceInvert4() noexcept;
     bool inplaceInvertN() noexcept;
 
 protected:
+    size_t rows;
+    size_t cols;
     std::vector<T> vals;
 
 public:
+    // Constructors
     Matrix(size_t rows, size_t cols);
     Matrix(std::vector<T> vals, size_t cols);
 
+    // Pseudo-constructors
     static Matrix<T> identity(size_t n);
+    Matrix<T> mapOver(std::function<T (T)> func);
 
+    // Getters and setters
     inline T getIndex(size_t i, size_t j) const;
     inline T& getIndexRef(size_t i, size_t j);
 
+    // Operator overloads
+    Matrix<T> operator*(T scalar) const;
+    Matrix<T> operator*(Matrix<T> rhs) const;
+
+    // Methods
     void inplaceMapOver(std::function<T (T)> func);
     void inplaceRowSwap(size_t r1, size_t r2);
     void inplaceRowScale(size_t row, T scalar);
@@ -37,6 +49,14 @@ public:
 
     bool tryInplaceInvert() noexcept;
 };
+
+template<typename T>
+Matrix<T>::Matrix()
+{
+    rows = 0;
+    cols = 0;
+    vals = std::vector<T>();
+}
 
 /// @brief Creates a new zero matrix with the given number of rows and columns
 /// @tparam T The type of the contained `Matrix<T>` data
@@ -47,7 +67,7 @@ Matrix<T>::Matrix(size_t rows, size_t cols): rows(rows), cols(cols)
 {
     vals = std::vector<T>();
     vals.reserve(rows * cols);
-    this->inplaceMapOver([] (T _elem) { return (T)0; });
+    this->inplaceMapOver([](T _elem){ return (T)0; });
 }
 
 /// @brief Creates a new `Matrix<T>` from the data in `vals`, but only 
@@ -65,7 +85,7 @@ Matrix<T>::Matrix(std::vector<T> vals, size_t cols): cols(cols), vals(vals)
     rows = vals.size() / cols;
 }
 
-/// @brief Creates a new identity `Matrix<T>` with `n` rows and `n` columns.
+/// @brief Creates a new identity `Matrix<T>` with `n` rows and `n` columns
 /// @tparam T The type of the contained `Matrix<T>` data
 /// @param n The number of rows and columns that the matrix should have
 /// @return A new identity matrix
@@ -77,6 +97,25 @@ Matrix<T> Matrix<T>::identity(size_t n)
     {
         res.getIndexRef(i, i) = (T)1;
     }
+    return res;
+}
+
+/// @brief Creates a new `Matrix<T>` by applying `func` to the elements of this `Matrix<T>`
+/// @tparam T The type of the contained `Matrix<T>` data 
+/// @param func The function to use to create the new matrix's elements from the old elements
+/// @return a new `Matrix<T>` containing the elements created by `func`
+template<typename T>
+Matrix<T> Matrix<T>::mapOver(std::function<T (T)> func)
+{
+    Matrix<T> res = Matrix();
+    res.rows = rows;
+    res.cols = cols;
+
+    for (auto p = vals.begin(); p != vals.end(); p++)
+    { 
+        res.vals.push_back(func(*p));
+    }
+
     return res;
 }
 
@@ -100,6 +139,45 @@ template<typename T>
 inline T& Matrix<T>::getIndexRef(size_t i, size_t j)
 {
     return vals[i * cols + j];
+}
+
+/// @brief Returns a new `Matrix<T>` scaled by the given scalar value
+/// @tparam T The type of the contained `Matrix<T>` data
+/// @param scalar The scalar to multiply this Matrix's elements by
+/// @return A new `Matrix<T>` scaled by the given value
+template<typename T>
+Matrix<T> Matrix<T>::operator*(T scalar) const
+{
+    return this->mapOver([scalar](T x){ return x * scalar; });
+}
+
+/// @brief Returns a new `Matrix<T>` containing the matrix product of two matrices
+/// @tparam T The type of the contained `Matrix<T>` data
+/// @param rhs The matrix to multiply this matrix by
+/// @return The matrix product of the two matrices given as a `Matrix<T>`
+template<typename T>
+Matrix<T> Matrix<T>::operator*(Matrix<T> rhs) const
+{
+    if (cols != rhs.rows)
+    {
+        throw;
+    }
+
+    size_t n = cols;
+    Matrix<T> res = Matrix(rows, rhs.cols);
+
+    for (size_t i = 0; i < rows; i++)
+    {
+        for (size_t j = 0; j < rhs.cols; j++)
+        {
+            for (size_t x = 0; x < n; x++)
+            {
+                res->getIndexRef(i, j) += this->getIndex(i, x) * rhs.getIndex(x, j);
+            }
+        }
+    }
+
+    return res;
 }
 
 /// @brief Applies a function to each element in the `Matrix<T>`, mutating the element's value to the returned result
