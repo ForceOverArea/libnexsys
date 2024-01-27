@@ -12,10 +12,10 @@ private:
     size_t rows;
     size_t cols;
 
-    bool inplaceInvert2();
-    bool inplaceInvert3();
-    bool inplaceInvert4();
-    bool inplaceInvertN();
+    bool inplaceInvert2() noexcept;
+    bool inplaceInvert3() noexcept;
+    bool inplaceInvert4() noexcept;
+    bool inplaceInvertN() noexcept;
 
 protected:
     std::vector<T> vals;
@@ -35,7 +35,7 @@ public:
     void inplaceRowAdd(size_t add_row, size_t to_row);
     void inplaceScaledRowAdd(size_t add_row, T scaled_by, size_t to_row);
 
-    bool tryInplaceInvert();
+    bool tryInplaceInvert() noexcept;
 };
 
 /// @brief Creates a new zero matrix with the given number of rows and columns
@@ -171,7 +171,7 @@ void Matrix<T>::inplaceScaledRowAdd(size_t add_row, T scaled_by, size_t to_row)
 
 /// @brief Helper function for `tryInplaceInvert`
 template<typename T>
-bool Matrix<T>::inplaceInvert2()
+bool Matrix<T>::inplaceInvert2() noexcept
 {
     T a11 = this->getIndex(0, 0);
     T a12 = this->getIndex(0, 1);
@@ -195,7 +195,7 @@ bool Matrix<T>::inplaceInvert2()
 
 /// @brief Helper function for `tryInplaceInvert`
 template<typename T>
-bool Matrix<T>::inplaceInvert3()
+bool Matrix<T>::inplaceInvert3() noexcept
 {
     T a11 = this->getIndex(0, 0);
     T a12 = this->getIndex(1, 0);
@@ -230,7 +230,7 @@ bool Matrix<T>::inplaceInvert3()
 
 /// @brief Helper function for `tryInplaceInvert`
 template<typename T>
-bool Matrix<T>::inplaceInvert4()
+bool Matrix<T>::inplaceInvert4() noexcept
 {
     T a11 = this->getIndex(0, 0);
     T a12 = this->getIndex(1, 0);
@@ -285,7 +285,7 @@ bool Matrix<T>::inplaceInvert4()
 
 /// @brief Helper function for `tryInplaceInvert`
 template<typename T>
-bool Matrix<T>::inplaceInvertN()
+bool Matrix<T>::inplaceInvertN() noexcept
 {
     size_t n = rows;
     Matrix<T> inv = Matrix<T>::identity(n);
@@ -328,7 +328,7 @@ bool Matrix<T>::inplaceInvertN()
 /// be in the same state as it was prior to the inversion attempt.
 /// @returns A bool indicating if inversion was successful.
 template<typename T>
-bool Matrix<T>::tryInplaceInvert()
+bool Matrix<T>::tryInplaceInvert() noexcept
 {
     if (rows != cols)
     {
