@@ -12,3 +12,6 @@ main : main.o
 
 main.o :
 	g++ -Wall -c src/main.cpp -I $(includeFolder) -o $(objectFolder)/main.o
+
+context.o :
+	g++ -Wall -c src/context.cpp -I $(includeFolder) -o $(objectFolder/context.o)
