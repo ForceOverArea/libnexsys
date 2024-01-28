@@ -50,6 +50,7 @@ public:
     bool tryInplaceInvert() noexcept;
 };
 
+/// Default constructor for a `Matrix<T>`, intended for internal class usage only
 template<typename T>
 Matrix<T>::Matrix()
 {
