@@ -6,12 +6,8 @@
 #include <unordered_map>
 #include <utility>
 
-/// A typedef for a `std::unordered_map` of `std::string`s to token
-/// values that they hold in the context of a math expression. 
-typedef std::unordered_map<std::string, Token> ContextMap;
-
 /// Some of the different legal tokens that may be found in a math expression in `char` format.
-constexpr char* OPTOKENS = "+-*/^(,)";
+const std::string OPTOKENS = "+-*/^(,)";
 
 /// @brief The different legal tokens that may be found in a math expression
 enum TokenType
@@ -54,7 +50,7 @@ public:
 
     ValueType operator=(const ValueType& rhs)
     {
-        this->num_value = rhs.num_value;
+        return ValueType(rhs);
     }
 
     ~ValueType() {}
@@ -79,12 +75,15 @@ public:
     
     Token operator=(const Token& rhs) 
     {
-        this->type = rhs.type;
-        this->value = rhs.value;
+        return Token(rhs);
     }
 
     ~Token() {}
 };
+
+/// A typedef for a `std::unordered_map` of `std::string`s to token
+/// values that they hold in the context of a math expression. 
+typedef std::unordered_map<std::string, Token> ContextMap;
 
 /// @brief Converts a string to a `Token`, if possible
 /// @param token_like the string to try and convert to a `Token`
