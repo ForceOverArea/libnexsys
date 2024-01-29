@@ -1,6 +1,7 @@
 #ifndef SHUNTING_HPP_
 #define SHUNTING_HPP_
 
+#include <iterator>
 #include <math.h>
 #include <string>
 #include <stdlib.h>
