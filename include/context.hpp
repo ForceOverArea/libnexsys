@@ -1,13 +1,9 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
-#include <functional>
 #include <string>
 #include <unordered_map>
 #include <utility>
-
-/// Some of the different legal tokens that may be found in a math expression in `char` format.
-const std::string OPTOKENS = "+-*/^(,)";
 
 /// @brief The different legal tokens that may be found in a math expression
 enum TokenType
@@ -97,6 +93,46 @@ bool try_tokenize(std::string token_like, Token &token);
 /// @param token a token, passed by reference, whose value should reflect the token contained in `token_like`
 /// @param ctx a `ContextMap` containing any constants, variables, or functions that should be parsable
 /// @return a `bool` indicating if the token could be converted
-bool try_tokenize_with_context(std::string token_like, Token &token, ContextMap ctx);
+Token tokenize_with_context(std::string token_like, ContextMap ctx);
+
+/// @brief Creates a token with type `Plus`
+/// @return a new `Token`
+inline Token plus();
+
+/// @brief Creates a token with type `Minus`
+/// @return a new `Token`
+inline Token minus();
+
+/// @brief Creates a token with type `Mul`
+/// @return a new `Token`
+inline Token mul();
+
+/// @brief Creates a token with type `Div`
+/// @return a new `Token`
+inline Token div();
+
+/// @brief Creates a token with type `Exp`
+/// @return a new `Token`
+inline Token exp();
+
+/// @brief Creates a token with type `LeftParenthesis`
+/// @return a new `Token`
+inline Token left_parenthesis();
+
+/// @brief Creates a token with type `Comma`
+/// @return a new `Token`
+inline Token comma();
+
+/// @brief Creates a token with type `Num`
+/// @return a new `Token`
+Token num(double value);
+
+/// @brief Creates a token with type `Var`
+/// @return a new `Token`
+Token var(double *value);
+
+/// @brief Creates a token with type `Func` from a function pointer and the number of arguments it takes
+/// @return a new `Token`
+Token func(size_t argc, double (*value)(double[]));
 
 #endif
