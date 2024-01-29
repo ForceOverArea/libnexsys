@@ -45,6 +45,10 @@
         "typeinfo": "cpp",
         "hash_map": "cpp",
         "iostream": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "bitset": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "regex": "cpp"
     }
 }
