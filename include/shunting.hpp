@@ -1,10 +1,7 @@
 #ifndef SHUNTING_HPP_
 #define SHUNTING_HPP_
 
-#include <algorithm>
-#include <functional>
 #include <math.h>
-#include <regex>
 #include <string>
 #include <stdlib.h>
 #include <sstream>
