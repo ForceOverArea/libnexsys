@@ -7,8 +7,11 @@ buildFolder = bin/build
 # Relative filepath to dir containing headers
 includeFolder = include 
 
-build_lib : context.o
-	g++ -shared -o $(buildFolder)/libnexsys.so $(objectFolder)/context.o
+build_lib : context.o shunting.o
+	g++ -shared -o $(buildFolder)/libnexsys.so $(objectFolder)/context.o $(objectFolder)/shunting.o
 
 context.o :
 	g++ -Wall -fPIC -c src/context.cpp -I $(includeFolder) -o $(objectFolder)/context.o
+
+shunting.o :
+	g++ -Wall -fPIC -c src/shunting.cpp -I $(includeFolder) -o $(objectFolder)/shunting.o

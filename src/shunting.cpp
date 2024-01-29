@@ -72,7 +72,7 @@ bool try_parse_double(std::string expr, double& result)
     result = strtod(expr.c_str(), NULL);
     if (result == 0)
     {
-        for (char c : expr)
+        for (char c: expr)
         {
             if (c != '0' && c != '.')
             {
@@ -96,7 +96,7 @@ std::vector<Token> rpnify(std::string expr, ContextMap ctx)
     std::vector<Token> queue;
     bool minus_is_unary = true;
 
-    for (auto word : words)
+    for (auto word: words)
     {
         if (word == ",")
         {
@@ -199,3 +199,94 @@ std::vector<Token> rpnify(std::string expr, ContextMap ctx)
     return queue;
 }
 
+/// unsanitary macro that applies a binary operator to two numbers at the top of
+/// the stack in the postfix evaluator algorithm.
+#define HANDLE_BINARY_OPERATOR(op)  \
+    if (stack.size() < 2)           \
+    {                               \
+        rhs = stack.back();         \
+        stack.pop_back();           \
+        lhs = stack.back();         \
+        stack.pop_back();           \
+        stack.push_back(lhs op rhs);\
+    }
+
+double eval_rpn_expression(std::vector<Token> rpn_expr)
+{
+    // Storage for funcs, args, etc
+    std::vector<double> stack;
+    std::vector<double> args;
+    double lhs;
+    double rhs;
+    size_t argc;
+    double (*func)(double[]);
+
+    for (Token tok: rpn_expr)
+    {
+        switch(tok.type)
+        {
+            case Num:
+                stack.push_back(tok.value.num_value);
+                break;
+
+            case Var:
+                stack.push_back(*(tok.value.var_value));
+                break;
+
+            case Plus:
+                HANDLE_BINARY_OPERATOR(+)
+                break;
+
+            case Minus:
+                HANDLE_BINARY_OPERATOR(-)
+                break;
+
+            case Mul:
+                HANDLE_BINARY_OPERATOR(*)
+                break;
+
+            case Div:
+                HANDLE_BINARY_OPERATOR(/)
+                break;
+
+            case Exp:
+                if (stack.size() < 2)
+                {
+                    throw; // TODO
+                }
+                rhs = stack.back();
+                stack.pop_back();
+                lhs = stack.back();
+                stack.pop_back();
+                stack.push_back(powf64(lhs, rhs));
+                break;
+
+            case Func:
+                argc = tok.value.func_value->first;
+                func= tok.value.func_value->second;
+                
+                if (stack.size() < argc)
+                {
+                    throw; // TODO
+                }
+                
+                while (args.size() < argc)
+                {
+                    args.push_back(stack.back());
+                    stack.pop_back();
+                }
+
+                stack.push_back(func(args.data()));
+                args.clear();
+                break;
+
+            default:
+                throw; // TODO
+        }
+    }
+    if (stack.size() != 1)
+    {
+        throw; // TODO
+    }
+    return stack.back();
+}

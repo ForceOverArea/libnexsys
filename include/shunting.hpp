@@ -1,7 +1,9 @@
 #ifndef SHUNTING_HPP_
 #define SHUNTING_HPP_
 
+#include <algorithm>
 #include <functional>
+#include <math.h>
 #include <regex>
 #include <string>
 #include <stdlib.h>
@@ -19,5 +21,9 @@ const std::string OPTOKENS = "+-*/^(,)";
 /// @return a `std::vector<Token>` of the expression in reverse polish notation
 std::vector<Token> rpnify(std::string expr, ContextMap ctx);
 
+/// @brief Evaluates a compiled reverse polish notation expression
+/// @param rpn_expr The reverse polish notation expression as a `std::vector<Token>`
+/// @return the value of the expression as a `double`
+double eval_rpn_expression(std::vector<Token> rpn_expr);
 
 #endif
