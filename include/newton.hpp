@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "shunting.hpp" // also includes context.hpp
+#include "shunting.hpp" // also includes "context.hpp", "variable.hpp"
 
 namespace nexsys 
 {
