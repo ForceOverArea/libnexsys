@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "context.hpp"
+#include "context.hpp" // also includes "variable.hpp"
 
 namespace nexsys
 {

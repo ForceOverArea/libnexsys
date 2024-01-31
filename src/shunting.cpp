@@ -212,7 +212,7 @@ namespace nexsys
     union _TokenSized
     { 
         double _double; 
-        double* _ptr; 
+        Variable* _ptr;
         double (*_func)(double[]);
         size_t _uint;
     };
@@ -239,7 +239,7 @@ namespace nexsys
 
                 case Var:
                     (void)tok.try_unwrap_var(_temp1._ptr);
-                    stack.push_back(*(_temp1._ptr));
+                    stack.push_back(_temp1._ptr->get_value());
                     break;
 
                 case Plus:
@@ -337,7 +337,7 @@ namespace nexsys
 
         return [arg_lookup_table, compiled_expr](unordered_map<string, double> x)
         {
-            double *var;
+            Variable *var;
             for (auto var_val: x)
             {
                 auto maybe_var = arg_lookup_table.find(var_val.first);
