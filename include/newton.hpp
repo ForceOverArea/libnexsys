@@ -1,13 +1,21 @@
-#ifndef NEWTON_HPP_
-#define NEWTON_HPP_
+#ifndef _NEWTON_HPP
+#define _NEWTON_HPP
 
-#include <functional>
 #include <cmath>
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-double newton_raphson(std::function<double (double)> func, double guess, double min, double max, double margin, size_t limit);
+#include "shunting.hpp" // also includes context.hpp
 
-inline double newton_raphson(std::function<double (double)> func, double margin, size_t limit);
+namespace nexsys 
+{
+    double newton_raphson(std::function<double (double)> func, double guess, double min, double max, double margin, size_t limit);
 
-inline double newton_raphson(std::function<double (double)> func);
+    inline double newton_raphson(std::function<double (double)> func, double margin, size_t limit);
+
+    inline double newton_raphson(std::function<double (double)> func);
+}
 
 #endif
