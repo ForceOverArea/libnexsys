@@ -30,7 +30,7 @@ namespace nexsys
     static _TokenValue from_function(size_t argc, double (*value)(double[]))
     {
         _TokenValue tkv;
-        tkv._phantom_ptr = static_cast<void*>(value);
+        tkv._phantom_ptr = reinterpret_cast<void*>(value); // Is this safe?
         return tkv;
     }
 

@@ -17,10 +17,6 @@ namespace nexsys
     /// @brief Type alias for a `std::pair` containing a `std::function` and the number of arguments it takes. 
     typedef std::pair<size_t, double (*)(double[])>* FunctionDataPtr;
 
-    /// @brief Type alias for a `std::unordered_map` of `std::string`s to token
-    /// values that they hold in the context of a math expression. 
-    typedef std::unordered_map<std::string, Token> ContextMap;
-
     /// @brief A tagged union (i.e. Rust-style enum) that represents a single 
     /// token in a math expression, possibly also containing a constant, variable, 
     /// or function value
@@ -99,6 +95,10 @@ namespace nexsys
             return Token(rhs);
         }
     };
+
+    /// @brief Type alias for a `std::unordered_map` of `std::string`s to token
+    /// values that they hold in the context of a math expression. 
+    typedef std::unordered_map<std::string, Token> ContextMap;
 
     /// @brief Converts a string to a `Token`, if possible
     /// @param token_like the string to try and convert to a `Token`
