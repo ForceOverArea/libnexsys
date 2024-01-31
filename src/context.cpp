@@ -137,6 +137,11 @@ namespace nexsys
         return tk;
     }
 
+    TokenType Token::get_type() const
+    {
+        return this->type;
+    }
+
     bool Token::try_unwrap_num(double& value)
     {
         if (this->type != Num)

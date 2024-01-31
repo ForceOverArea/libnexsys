@@ -84,7 +84,7 @@ namespace nexsys
 
         /// @brief Provides read-only visibility to this `Token`'s type.
         /// @return this `Token`'s `TokenType`
-        TokenType get_type();
+        TokenType get_type() const;
 
         /// @brief Unwraps a constant `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped `double` value
