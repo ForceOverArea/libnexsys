@@ -56,8 +56,6 @@ namespace nexsys
     unordered_map<string, double> newton_raphson_multivariate(
         vector<function<double (unordered_map<string, double>)>> system, 
         unordered_map<string, double> guess,
-        double min,
-        double max,
         double margin,
         size_t limit)
     {
@@ -79,6 +77,7 @@ namespace nexsys
 
         vector<double> elements;
         vector<double> error;
+        double mag_error = 0;
         for (auto func: system)
         {
             // Build jacobian with f(x) values. We will mutate to partial derivatives later.
@@ -86,20 +85,13 @@ namespace nexsys
 
             // Write down error values
             error.push_back(f_of_x);
+            mag_error += powl(f_of_x, 2);
 
             for (size_t i = 0; i < n; i++)
             {
                 elements.push_back(f_of_x);
             }
         }
-
-        // Calculate how far off our guess left us
-        double total_error = 0;
-        for (double err_val: error)
-        {
-            total_error += powf64(err_val, 2);
-        }
-        total_error = powf64(total_error, 0.5);
 
         Matrix<double> jacobian(elements, n);
         vector<string> vars;
@@ -130,6 +122,31 @@ namespace nexsys
             throw; // TODO - matrix inversion error
         }
 
+        double mag_delta = 0;
+        double* mag_delta_ptr = &mag_delta;
+
         Matrix<double> deltas = jacobian * Matrix<double>::from_col_vec(error);
+        deltas.inplace_map_over(
+            [mag_delta_ptr](double dx)
+            {
+                *mag_delta_ptr += powl(dx, 2);
+                return dx;
+            }
+        );
+
+        // If we are within the required radius of the correct value and solution
+        if (sqrtl(mag_delta) <= margin && sqrtl(mag_error) <= margin)
+        {
+            return guess;
+        }
+
+        //...otherwise, modify guess and retry
+        for (auto var_val: guess)
+        {
+            size_t i = &var_val - &*guess.begin();  // TODO: this is crusty as fuck...
+            var_val.second -= deltas.get_index(i, 0);
+        }
+
+        return newton_raphson_multivariate(system, guess, margin, limit);
     }
 }
