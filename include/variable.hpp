@@ -85,6 +85,13 @@ namespace nexsys
 
             return *this;
         }
+
+        /// @brief Offers read-only access to `this->value`
+        /// @return This variable's value as a `double`
+        double get_value()
+        {
+            return value;
+        }
     };
 }
 
