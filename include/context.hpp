@@ -1,14 +1,13 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
-#include <functional>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 namespace nexsys 
 {    
-    /// @brief A possible contained value of a `Token`
+    /// @brief A possible contained value of a `Token`. Not intended for use in external code.
     union _TokenValue
     {
         void* _phantom_ptr;

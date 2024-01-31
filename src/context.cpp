@@ -1,7 +1,6 @@
 #include "context.hpp"
 
 using std::pair;
-using std::function;
 using std::move;
 
 namespace nexsys
