@@ -1,5 +1,5 @@
-#ifndef SHUNTING_HPP_
-#define SHUNTING_HPP_
+#ifndef _SHUNTING_HPP
+#define _SHUNTING_HPP
 
 #include <functional>
 #include <iterator>
