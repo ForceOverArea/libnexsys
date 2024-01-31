@@ -18,19 +18,18 @@ namespace nexsys
         /// @param value the value that the variable should have
         /// @param min_bound the lower bound of the variable's domain
         /// @param max_bound the upper bound of the variable's domain
-        Variable(double value, double min_bound, double max_bound): value(value), min_bound(min_bound), max_bound(max_bound) {}
+        Variable(double value, double min_bound, double max_bound): min_bound(min_bound), max_bound(max_bound), value(value) {}
 
         /// @brief Constructor for a `Variable` whose domain is all real numbers
         /// @param value the value that the variable should have
-        Variable(double value)
-        {
-            Variable(value, -INFINITY, INFINITY);
-        }
+        Variable(double value): Variable(value, -INFINITY, INFINITY) {}
 
         /// @brief Constructor for a `Variable` whose domain is all real numbers and whose value should default to `1.0`
-        Variable()
+        Variable() 
         {
-            Variable(1.0);
+            value = 1.0;
+            min_bound = -INFINITY;
+            max_bound = INFINITY;
         }
 
         /// @brief Assignment operator for a `Variable`. Allows one to assign directly to `this->value` AND bounds the value to this `Variable`'s domain.
