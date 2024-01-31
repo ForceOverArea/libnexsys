@@ -1,27 +1,27 @@
 #ifndef SHUNTING_HPP_
 #define SHUNTING_HPP_
 
+#include <functional>
 #include <iterator>
 #include <math.h>
-#include <string>
-#include <stdlib.h>
 #include <sstream>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "context.hpp"
 
-/// Some of the different legal tokens that may be found in a math expression in `char` format.
-const std::string OPTOKENS = "+-*/^(,)";
+namespace nexsys
+{
+    /// Some of the different legal tokens that may be found in a math expression in `char` format.
+    const std::string OPTOKENS = "+-*/^(,)";
 
-/// @brief Parses an expression to the equivalent reverse polish notation expression.
-/// @param expr The mathematical expression to be parsed in infix notation
-/// @param ctx The `ContextMap` containing any custom constant, variable, or function values in the expression.
-/// @return a `std::vector<Token>` of the expression in reverse polish notation
-std::vector<Token> rpnify(std::string expr, ContextMap ctx);
-
-/// @brief Evaluates a compiled reverse polish notation expression
-/// @param rpn_expr The reverse polish notation expression as a `std::vector<Token>`
-/// @return the value of the expression as a `double`
-double eval_rpn_expression(std::vector<Token> rpn_expr);
-
+    /// @brief Compiles an expression in infix notation to a multivariate function
+    /// @param expr The expression that the given closure should evaluate upon being called
+    /// @param ctx The `ContextMap` describing what any variables, functions, or  in the expression are
+    /// @return 
+    std::function<double (std::unordered_map<std::string, double>)> compile_to_function_of_umap(std::string expr, ContextMap ctx);
+}
 #endif

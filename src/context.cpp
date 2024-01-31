@@ -142,7 +142,7 @@ namespace nexsys
         return this->type;
     }
 
-    bool Token::try_unwrap_num(double& value)
+    bool Token::try_unwrap_num(double& value) const
     {
         if (this->type != Num)
         {
@@ -153,7 +153,7 @@ namespace nexsys
         return true;
     }
 
-    bool Token::try_unwrap_var(double*& value)
+    bool Token::try_unwrap_var(double*& value) const
     {
         if (this->type != Var)
         {
@@ -164,7 +164,7 @@ namespace nexsys
         return true;
     }
 
-    bool Token::try_unwrap_func(size_t& argc, double (*& value)(double[]))
+    bool Token::try_unwrap_func(size_t& argc, double (*& value)(double[])) const
     {
         if (this->type != Var)
         {

@@ -1,292 +1,353 @@
 #include "shunting.hpp"
 
-/// @brief 
-/// @param op 
-/// @return 
-char precedence(std::string op)
+using std::function;
+using std::istream_iterator;
+using std::move;
+using std::string;
+using std::stringstream;
+using std::unordered_map;
+using std::vector;
+
+namespace nexsys
 {
-    if (op.size() != 1)
+    /// @brief 
+    /// @param op 
+    /// @return 
+    static char precedence(string op)
     {
-        return 0;
-    }
-
-    switch(*(op.c_str()))
-    {
-        case '^':
-            return 4;
-        case '*':
-        case '/':
-            return 3;
-        case '+':
-        case '-':
-            return 2;
-        default:
-            return 1;
-    }
-}
-
-/// @brief 
-/// @param o1 
-/// @param o2 
-/// @return 
-char prec_check(std::string o1, std::string o2)
-{
-    bool check1 = o2 != "(";
-    bool check2 = precedence(o2) > precedence(o1);
-    bool check3 = precedence(o2) == precedence(o1) && o1 != "^";
-
-    return check1 && (check2 || check3);
-}
-
-/// @brief 
-/// @param expr 
-/// @return 
-std::string punctuate(std::string expr)
-{
-    std::string output_expr;
-    for (char c : expr)
-    {
-        switch(OPTOKENS.find(c))
+        if (op.size() != 1)
         {
-            case std::string::npos:
-                output_expr.push_back(c);
-                break;
+            return 0;
+        }
 
+        switch(*(op.c_str()))
+        {
+            case '^':
+                return 4;
+            case '*':
+            case '/':
+                return 3;
+            case '+':
+            case '-':
+                return 2;
             default:
-                output_expr.push_back(' ');
-                output_expr.push_back(c);
-                output_expr.push_back(' ');
-                break;
+                return 1;
         }
     }
 
-    return output_expr;
-}
-
-/// @brief 
-/// @param expr 
-/// @param result 
-/// @return 
-bool try_parse_double(std::string expr, double& result)
-{
-    result = strtod(expr.c_str(), NULL);
-    if (result == 0)
+    /// @brief 
+    /// @param o1 
+    /// @param o2 
+    /// @return 
+    static char prec_check(string o1, string o2)
     {
-        for (char c: expr)
-        {
-            if (c != '0' && c != '.')
-            {
-                return false;
-            }
-        }
+        bool check1 = o2 != "(";
+        bool check2 = precedence(o2) > precedence(o1);
+        bool check3 = precedence(o2) == precedence(o1) && o1 != "^";
+
+        return check1 && (check2 || check3);
     }
-    return true;
-}
 
-std::vector<Token> rpnify(std::string expr, ContextMap ctx)
-{
-    // Get space-delimited vector of words in the expression
-    std::stringstream ss(punctuate(expr));
-    std::istream_iterator<std::string> begin(ss);
-    std::istream_iterator<std::string> end;
-    std::vector<std::string> words(begin, end);
-
-    // Initialize stack and queue
-    std::vector<std::string> stack;
-    std::vector<Token> queue;
-    bool minus_is_unary = true;
-
-    for (auto word: words)
+    /// @brief 
+    /// @param expr 
+    /// @return 
+    static string punctuate(string expr)
     {
-        if (word == ",")
+        string output_expr;
+        for (char c : expr)
         {
-            while (stack.size() != 0)
+            switch(OPTOKENS.find(c))
             {
-                if (stack.back() == "(")
-                {
-                    stack.pop_back();
+                case string::npos:
+                    output_expr.push_back(c);
                     break;
-                }
-                queue.push_back(tokenize_with_context(move(stack.back()), ctx));
-                stack.pop_back();
-            }
-            minus_is_unary = true;
-        }
-        else if (word == "(")
-        {
-            stack.push_back(word);
-            minus_is_unary = false;
-        }
-        else if (word == ")")
-        {
-            while (stack.size() != 0)
-            {
-                if (stack.back() == "(")
-                {
-                    stack.pop_back();
-                    break;
-                }
-                else
-                {
-                    queue.push_back(tokenize_with_context(word, ctx));
-                    stack.pop_back();
-                }
-            }
-            minus_is_unary = true;
-        }
-        else if (word == "+" || word == "-" || word == "*" || word == "/" || word == "^")
-        {
-            std::string o1 = word;
 
-            if (minus_is_unary && o1 == "-")
-            {
-                queue.push_back(num(-1.0));
-                stack.push_back("*");
-                // do not specify `minus_is_unary`
-                // minus will be unary following a 
-                // unary minus for double negation.
+                default:
+                    output_expr.push_back(' ');
+                    output_expr.push_back(c);
+                    output_expr.push_back(' ');
+                    break;
             }
-            else
+        }
+
+        return output_expr;
+    }
+
+    /// @brief 
+    /// @param expr 
+    /// @param result 
+    /// @return 
+    static bool try_parse_double(string expr, double& result)
+    {
+        result = strtod(expr.c_str(), NULL);
+        if (result == 0)
+        {
+            for (char c: expr)
+            {
+                if (c != '0' && c != '.')
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    static vector<Token> rpnify(string expr, ContextMap ctx)
+    {
+        // Get space-delimited vector of words in the expression
+        stringstream ss(punctuate(expr));
+        istream_iterator<string> begin(ss);
+        istream_iterator<string> end;
+        vector<string> words(begin, end);
+
+        // Initialize stack and queue
+        vector<string> stack;
+        vector<Token> queue;
+        bool minus_is_unary = true;
+
+        for (auto word: words)
+        {
+            if (word == ",")
             {
                 while (stack.size() != 0)
                 {
-                    std::string o2 = stack.back();
-                    stack.pop_back();
-                    if (prec_check(o1, o2))
+                    if (stack.back() == "(")
                     {
-                        queue.push_back(tokenize_with_context(o2, ctx));
+                        stack.pop_back();
+                        break;
+                    }
+                    queue.push_back(tokenize_with_context(move(stack.back()), ctx));
+                    stack.pop_back();
+                }
+                minus_is_unary = true;
+            }
+            else if (word == "(")
+            {
+                stack.push_back(word);
+                minus_is_unary = false;
+            }
+            else if (word == ")")
+            {
+                while (stack.size() != 0)
+                {
+                    if (stack.back() == "(")
+                    {
+                        stack.pop_back();
+                        break;
                     }
                     else
                     {
-                        stack.push_back(o2);
-                        break;
+                        queue.push_back(tokenize_with_context(word, ctx));
+                        stack.pop_back();
                     }
                 }
                 minus_is_unary = true;
             }
-        }
-        else // Token is either a yet-to-be-parsed number literal, a ctx-specified token, or garbage
-        {
-            auto in_ctx = ctx.find(word);
-            double num_literal;
+            else if (word == "+" || word == "-" || word == "*" || word == "/" || word == "^")
+            {
+                string o1 = word;
 
-            if (in_ctx != ctx.end())
-            {
-                queue.push_back(in_ctx->second);
-                minus_is_unary = (in_ctx->second.type == Func); // minus will be unary following an individual function token 
+                if (minus_is_unary && o1 == "-")
+                {
+                    queue.push_back(Token::num(-1.0));
+                    stack.push_back("*");
+                    // do not specify `minus_is_unary`
+                    // minus will be unary following a 
+                    // unary minus for double negation.
+                }
+                else
+                {
+                    while (stack.size() != 0)
+                    {
+                        string o2 = stack.back();
+                        stack.pop_back();
+                        if (prec_check(o1, o2))
+                        {
+                            queue.push_back(tokenize_with_context(o2, ctx));
+                        }
+                        else
+                        {
+                            stack.push_back(o2);
+                            break;
+                        }
+                    }
+                    minus_is_unary = true;
+                }
             }
-            else if (try_parse_double(word, num_literal))
+            else // Token is either a yet-to-be-parsed number literal, a ctx-specified token, or garbage
             {
-                queue.push_back(num(num_literal));
+                auto in_ctx = ctx.find(word);
+                double num_literal;
+
+                if (in_ctx != ctx.end())
+                {
+                    minus_is_unary = (in_ctx->second.get_type() == Func); // minus will be unary following an individual function token 
+                }
+                else if (try_parse_double(word, num_literal))
+                {
+                    queue.push_back(Token::num(num_literal));
+                }
+                else
+                {
+                    throw; // TODO
+                }
             }
-            else
+        }
+
+        while (stack.size() != 0)
+        {
+            if (stack.back() == "(" || stack.back() == ")")
             {
                 throw; // TODO
             }
+            queue.push_back(tokenize_with_context(stack.back(), ctx));
+            stack.pop_back();
         }
+
+        return queue;
     }
 
-    while (stack.size() != 0)
+    /// @brief Helper type sized to temporarily store any value contained in a `Token`.
+    union _TokenSized
+    { 
+        double _double; 
+        double* _ptr; 
+        double (*_func)(double[]);
+        size_t _uint;
+    };
+
+    /// @brief Evaluates a compiled reverse polish notation expression
+    /// @param rpn_expr The reverse polish notation expression as a `std::vector<Token>`
+    /// @return the value of the expression as a `double`
+    static double eval_rpn_expression(vector<Token> rpn_expr)
     {
-        if (stack.back() == "(" || stack.back() == ")")
+        vector<double> stack;
+        vector<double> args;
+
+        // Storage for funcs, args, etc
+        _TokenSized _temp1, _temp2;
+
+        for (Token tok: rpn_expr)
+        {
+            switch(tok.get_type())
+            {
+                case Num:
+                    (void)tok.try_unwrap_num(_temp1._double);
+                    stack.push_back(_temp1._double);
+                    break;
+
+                case Var:
+                    (void)tok.try_unwrap_var(_temp1._ptr);
+                    stack.push_back(*(_temp1._ptr));
+                    break;
+
+                case Plus:
+                    if (stack.size() < 2)
+                    {
+                        throw; // TODO
+                    }
+                    _temp2._double = move(stack.back());
+                    stack.pop_back();
+                    _temp1._double = move(stack.back());
+                    stack.pop_back();
+                    stack.push_back(_temp1._double + _temp2._double);
+                    break;
+
+                case Minus:
+                    if (stack.size() < 2)
+                    {
+                        throw; // TODO
+                    }
+                    _temp2._double = move(stack.back());
+                    stack.pop_back();
+                    _temp1._double = move(stack.back());
+                    stack.pop_back();
+                    stack.push_back(_temp1._double - _temp2._double);
+                    break;
+
+                case Mul:
+                    if (stack.size() < 2)
+                    {
+                        throw; // TODO
+                    }
+                    _temp2._double = move(stack.back());
+                    stack.pop_back();
+                    _temp1._double = move(stack.back());
+                    stack.pop_back();
+                    stack.push_back(_temp1._double * _temp2._double);
+                    break;
+
+                case Div:
+                    if (stack.size() < 2)
+                    {
+                        throw; // TODO
+                    }
+                    _temp2._double = move(stack.back());
+                    stack.pop_back();
+                    _temp1._double = move(stack.back());
+                    stack.pop_back();
+                    stack.push_back(_temp1._double / _temp2._double);
+                    break;
+
+                case Exp:
+                    if (stack.size() < 2)
+                    {
+                        throw; // TODO
+                    }
+                    _temp2._double = move(stack.back());
+                    stack.pop_back();
+                    _temp1._double = move(stack.back());
+                    stack.pop_back();
+                    stack.push_back(powl(_temp1._double,_temp2._double));
+                    break;
+
+                case Func:
+                    (void)tok.try_unwrap_func(_temp1._uint, _temp2._func);
+                    if (stack.size() < _temp1._uint)
+                    {
+                        throw; // TODO
+                    }
+                    
+                    while (args.size() < _temp1._uint)
+                    {
+                        args.push_back(move(stack.back()));
+                        stack.pop_back();
+                    }
+
+                    stack.push_back(_temp2._func(args.data()));
+                    args.clear();
+                    break;
+
+                default:
+                    throw; // TODO
+            }
+        }
+        if (stack.size() != 1)
         {
             throw; // TODO
         }
-        queue.push_back(tokenize_with_context(stack.back(), ctx));
-        stack.pop_back();
+        return stack.back();
     }
 
-    return queue;
-}
-
-/// unsanitary macro that applies a binary operator to two numbers at the top of
-/// the stack in the postfix evaluator algorithm.
-#define HANDLE_BINARY_OPERATOR(op)  \
-    if (stack.size() < 2)           \
-    {                               \
-        rhs = stack.back();         \
-        stack.pop_back();           \
-        lhs = stack.back();         \
-        stack.pop_back();           \
-        stack.push_back(lhs op rhs);\
-    }
-
-double eval_rpn_expression(std::vector<Token> rpn_expr)
-{
-    // Storage for funcs, args, etc
-    std::vector<double> stack;
-    std::vector<double> args;
-    double lhs;
-    double rhs;
-    size_t argc;
-    double (*func)(double[]);
-
-    for (Token tok: rpn_expr)
+    function<double (unordered_map<string, double>)> compile_to_function_of_umap(string expr, ContextMap ctx)
     {
-        switch(tok.type)
+        auto compiled_expr = move(rpnify(expr, ctx));
+        auto arg_lookup_table = ctx;
+
+        return [arg_lookup_table, compiled_expr](unordered_map<string, double> x)
         {
-            case Num:
-                stack.push_back(tok.value.num_value);
-                break;
-
-            case Var:
-                stack.push_back(*(tok.value.var_value));
-                break;
-
-            case Plus:
-                HANDLE_BINARY_OPERATOR(+)
-                break;
-
-            case Minus:
-                HANDLE_BINARY_OPERATOR(-)
-                break;
-
-            case Mul:
-                HANDLE_BINARY_OPERATOR(*)
-                break;
-
-            case Div:
-                HANDLE_BINARY_OPERATOR(/)
-                break;
-
-            case Exp:
-                if (stack.size() < 2)
+            double *var;
+            for (auto var_val: x)
+            {
+                auto maybe_var = arg_lookup_table.find(var_val.first);
+                if (maybe_var != arg_lookup_table.end() && 
+                    maybe_var->second.try_unwrap_var(var))
                 {
-                    throw; // TODO
+                    *var = var_val.second;
                 }
-                rhs = stack.back();
-                stack.pop_back();
-                lhs = stack.back();
-                stack.pop_back();
-                stack.push_back(powf64(lhs, rhs));
-                break;
-
-            case Func:
-                argc = tok.value.func_value->first;
-                func= tok.value.func_value->second;
-                
-                if (stack.size() < argc)
-                {
-                    throw; // TODO
-                }
-                
-                while (args.size() < argc)
-                {
-                    args.push_back(stack.back());
-                    stack.pop_back();
-                }
-
-                stack.push_back(func(args.data()));
-                args.clear();
-                break;
-
-            default:
-                throw; // TODO
-        }
+            }
+            return eval_rpn_expression(compiled_expr);
+        };
     }
-    if (stack.size() != 1)
-    {
-        throw; // TODO
-    }
-    return stack.back();
 }

@@ -89,17 +89,17 @@ namespace nexsys
         /// @brief Unwraps a constant `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped `double` value
         /// @return A `bool` indicating success or failure.
-        bool try_unwrap_num(double& value);
+        bool try_unwrap_num(double& value) const;
 
         /// @brief Unwraps a variable `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped `double*` value
         /// @return A `bool` indicating success or failure.
-        bool try_unwrap_var(double*& value);
+        bool try_unwrap_var(double*& value) const;
 
         /// @brief Unwraps a variable `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped function pointer value
         /// @return A `bool` indicating success or failure.
-        bool try_unwrap_func(size_t& argc, double (*&value)(double[]));
+        bool try_unwrap_func(size_t& argc, double (*&value)(double[])) const;
 
         Token() {}
         ~Token() {}
