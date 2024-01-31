@@ -1,124 +1,245 @@
 #include "context.hpp"
 
-/// An unsanitary macro for constructing a `Token` with a value of 0.
-#define TOKEN_CONSTRUCTOR(t)    \
-    Token res;                  \
-    res.type = (t);             \
-    res.value.num_value = 0x00;
+using std::pair;
+using std::function;
+using std::move;
 
-inline Token plus()
+namespace nexsys
 {
-    TOKEN_CONSTRUCTOR(Plus)
-    return res;
-}
-
-inline Token minus()
-{
-    TOKEN_CONSTRUCTOR(Minus)
-    return res;
-}
-
-inline Token mul()
-{
-    TOKEN_CONSTRUCTOR(Mul)
-    return res;
-}
-
-inline Token div()
-{
-    TOKEN_CONSTRUCTOR(Div)
-    return res;
-}
-
-inline Token exp()
-{
-    TOKEN_CONSTRUCTOR(Exp)
-    return res;
-}
-
-inline Token left_parenthesis()
-{
-    TOKEN_CONSTRUCTOR(Exp)
-    return res;
-}
-
-inline Token comma()
-{
-    TOKEN_CONSTRUCTOR(Comma)
-    return res;
-}
-
-Token num(double value)
-{
-    TOKEN_CONSTRUCTOR(Num)
-    res.value.num_value = value;
-    return res;
-}
-
-Token var(double *value)
-{
-    TOKEN_CONSTRUCTOR(Var)
-    res.value.var_value = value;
-    return res;
-}
-
-Token func(size_t argc, double (*value)(double[]))
-{
-    TOKEN_CONSTRUCTOR(Func)
-    res.value.func_value->first  = argc;
-    res.value.func_value->second = value;
-    return res;
-}
-
-bool try_tokenize(std::string token_like, Token &token)
-{
-    if (token_like.size() != 1)
+    /// @brief The different legal tokens that may be found in a math expression
+    enum TokenType
     {
-        return false;
+        Plus,
+        Minus,
+        Mul,
+        Div,
+        Exp,
+        LeftParenthesis,
+        Comma,
+        Num,
+        Var,
+        Func,
+    };
+
+    /// @brief Helper function to convert a token's value to a function.
+    static FunctionDataPtr to_function(_TokenValue value) noexcept
+    {
+        return static_cast<FunctionDataPtr>(value._phantom_ptr);
     }
 
-    switch(token_like[0])
+    /// @brief Helper function to convert a function pointer to a token's value.
+    static _TokenValue from_function(size_t argc, double (*value)(double[]))
     {
-        case '+':
-            token = std::move(plus());
-            return true;
-        case '-':
-            token = std::move(minus());
-            return true;
-        case '*':
-            token = std::move(mul());
-            return true;
-        case '/':
-            token = std::move(div());
-            return true;
-        case '^':
-            token = std::move(exp());
-            return true;
-        case '(':
-            token = std::move(left_parenthesis());
-            return true;
-        case ',':
-            token = std::move(comma());
-            return true;
-        default:
+        _TokenValue tkv;
+        tkv._phantom_ptr = static_cast<void*>(value);
+        return tkv;
+    }
+
+    /// @brief Helper function to convert a token's value to a variable (i.e. a `double*`)
+    static double* to_variable(_TokenValue value) noexcept
+    {
+        return static_cast<double*>(value._phantom_ptr);
+    }
+    
+    /// @brief Helper function to convert a `double*` to a token's value. 
+    static _TokenValue from_variable(double* value)
+    {
+        _TokenValue tkv;
+        tkv._phantom_ptr = static_cast<void*>(value);
+        return tkv;
+    }
+
+    /// @brief Helper function to convert a token's value to a constant value (i.e. a `double`)
+    static double to_constant(_TokenValue value)
+    {
+        return static_cast<double>(value._phantom_double);
+    }
+
+    /// @brief Helper function to convert a constant value to a token's value.
+    static _TokenValue from_constant(double value)
+    {
+        _TokenValue tkv;
+        tkv._phantom_double = value;
+        return tkv;
+    }
+
+    Token Token::plus()
+    {
+        Token tk;
+        tk.type = Plus;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::minus()
+    {
+        Token tk;
+        tk.type = Minus;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::mul()
+    {
+        Token tk;
+        tk.type = Mul;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::div()
+    {
+        Token tk;
+        tk.type = Div;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::exp()
+    {
+        Token tk;
+        tk.type = Exp;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::left_parenthesis()
+    {
+        Token tk;
+        tk.type = LeftParenthesis;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::comma()
+    {
+        Token tk;
+        tk.type = Comma;
+        tk.value = from_constant(0);
+
+        return tk;
+    }
+
+    Token Token::num(double value)
+    {
+        Token tk;
+        tk.type = Num;
+        tk.value = from_constant(value);
+
+        return tk;
+    }
+
+    Token Token::var(double* value)
+    {
+        Token tk;
+        tk.type = Var;
+        tk.value = from_variable(value);
+
+        return tk;
+    }
+
+    Token Token::func(size_t argc, double (*value)(double[]))
+    {
+        Token tk;
+        tk.type = Func;
+        tk.value = from_function(argc, value);
+
+        return tk;
+    }
+
+    bool Token::try_unwrap_num(double& value)
+    {
+        if (this->type != Num)
+        {
             return false;
-    }
-}
+        }
 
-Token tokenize_with_context(std::string token_like, ContextMap ctx)
-{
-    Token token;
-    if (try_tokenize(token_like, token))
+        value = to_constant(this->value);
+        return true;
+    }
+
+    bool Token::try_unwrap_var(double*& value)
     {
-        return token;
+        if (this->type != Var)
+        {
+            return false;
+        }
+
+        value = to_variable(this->value);
+        return true;
     }
 
-    auto known_tk = ctx.find(token_like);
-    if (known_tk != ctx.end())
+    bool Token::try_unwrap_func(size_t& argc, double (*& value)(double[]))
     {
-        token = known_tk->second;
-        return token;
+        if (this->type != Var)
+        {
+            return false;
+        }
+
+        auto values = to_function(this->value);
+
+        argc = values->first;
+        value = values->second;
+
+        return true;
     }
 
-    throw; // TODO
+    bool try_tokenize(std::string token_like, Token &token) noexcept
+    {
+        if (token_like.size() != 1)
+        {
+            return false;
+        }
+
+        switch(token_like[0])
+        {
+            case '+':
+                token = move(Token::plus());
+                return true;
+            case '-':
+                token = move(Token::minus());
+                return true;
+            case '*':
+                token = move(Token::mul());
+                return true;
+            case '/':
+                token = move(Token::div());
+                return true;
+            case '^':
+                token = move(Token::exp());
+                return true;
+            case '(':
+                token = move(Token::left_parenthesis());
+                return true;
+            case ',':
+                token = move(Token::comma());
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    Token tokenize_with_context(std::string token_like, ContextMap ctx)
+    {
+        Token token;
+        if (try_tokenize(token_like, token))
+        {
+            return token;
+        }
+
+        auto known_tk = ctx.find(token_like);
+        if (known_tk != ctx.end())
+        {
+            token = known_tk->second;
+            return token;
+        }
+
+        throw; // TODO
+    }
 }
