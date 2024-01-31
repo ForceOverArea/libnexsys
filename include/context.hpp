@@ -4,6 +4,9 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
+
+#include "variable.hpp"
 
 namespace nexsys 
 {    
@@ -76,7 +79,7 @@ namespace nexsys
 
         /// @brief Creates a new token for a variable `double` value
         /// @return a new `Token` 
-        static Token var(double* value);
+        static Token var(Variable* value);
 
         /// @brief Creates a new token for a function
         /// @return a new `Token` 
@@ -94,7 +97,7 @@ namespace nexsys
         /// @brief Unwraps a variable `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped `double*` value
         /// @return A `bool` indicating success or failure.
-        bool try_unwrap_var(double*& value) const;
+        bool try_unwrap_var(Variable*& value) const;
 
         /// @brief Unwraps a variable `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped function pointer value
@@ -115,9 +118,25 @@ namespace nexsys
         }
     };
 
-    /// @brief Type alias for a `std::unordered_map` of `std::string`s to token
-    /// values that they hold in the context of a math expression. 
-    typedef std::unordered_map<std::string, Token> ContextMap;
+    /// @brief Similar to `std::unordered_map`, but with additional methods for specifying 
+    /// symbols for `Token` values in an expression given as a `std::string`  
+    class ContextMap final: public std::unordered_map<std::string, Token>
+    {
+    private:
+        std::vector<std::string> malloced_vars;
+        using std::unordered_map<std::string, Token>::erase; // Private so that users cannot leak memory by erasing a default variable.
+
+    public:
+        void add_num_to_ctx(std::string symbol, double value);
+
+        void add_var_to_ctx(std::string symbol, Variable* value);
+
+        inline void add_var_to_ctx(std::string symbol);
+
+        void add_func_to_ctx(std::string symbol, size_t argc, double (*value)(double[]));
+
+        ~ContextMap();
+    };
 
     /// @brief Converts a string to a `Token`, if possible
     /// @param token_like the string to try and convert to a `Token`

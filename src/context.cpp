@@ -1,7 +1,8 @@
 #include "context.hpp"
 
-using std::pair;
 using std::move;
+using std::pair;
+using std::string;
 
 namespace nexsys
 {
@@ -20,13 +21,13 @@ namespace nexsys
     }
 
     /// @brief Helper function to convert a token's value to a variable (i.e. a `double*`)
-    static double* to_variable(_TokenValue value) noexcept
+    static Variable* to_variable(_TokenValue value) noexcept
     {
-        return static_cast<double*>(value._phantom_ptr);
+        return static_cast<Variable*>(value._phantom_ptr);
     }
     
     /// @brief Helper function to convert a `double*` to a token's value. 
-    static _TokenValue from_variable(double* value)
+    static _TokenValue from_variable(Variable* value)
     {
         _TokenValue tkv;
         tkv._phantom_ptr = static_cast<void*>(value);
@@ -119,7 +120,7 @@ namespace nexsys
         return tk;
     }
 
-    Token Token::var(double* value)
+    Token Token::var(Variable* value)
     {
         Token tk;
         tk.type = Var;
@@ -153,7 +154,7 @@ namespace nexsys
         return true;
     }
 
-    bool Token::try_unwrap_var(double*& value) const
+    bool Token::try_unwrap_var(Variable*& value) const
     {
         if (this->type != Var)
         {
@@ -177,6 +178,51 @@ namespace nexsys
         value = values->second;
 
         return true;
+    }
+
+    void ContextMap::add_num_to_ctx(string symbol, double value)
+    {
+        this->insert(move(
+            pair<string, Token>(
+                symbol, 
+                move(Token::num(value))
+            )
+        ));
+    }
+
+    void ContextMap::add_var_to_ctx(string symbol, Variable* value)
+    {
+        this->insert(move(
+            pair<string, Token>(
+                symbol,
+                move(Token::var(value))
+            )
+        ));
+    }
+
+    inline void ContextMap::add_var_to_ctx(string symbol)
+    {
+        add_var_to_ctx(symbol, new Variable());
+    }
+
+    void ContextMap::add_func_to_ctx(string symbol, size_t argc, double (*value)(double[]))
+    {
+        this->insert(move(
+            pair<string, Token>(
+                symbol,
+                move(Token::func(argc, value))
+            )
+        ));
+    }
+
+    ContextMap::~ContextMap()
+    {
+        for (std::string var: malloced_vars)
+        {
+            Variable* kill_it;
+            (void)this->find(var)->second.try_unwrap_var(kill_it);
+            delete kill_it;
+        }
     }
 
     bool try_tokenize(std::string token_like, Token &token) noexcept
