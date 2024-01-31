@@ -7,6 +7,21 @@
 
 namespace nexsys 
 {    
+    /// @brief The different legal tokens that may be found in a math expression
+    enum TokenType
+    {
+        Plus,
+        Minus,
+        Mul,
+        Div,
+        Exp,
+        LeftParenthesis,
+        Comma,
+        Num,
+        Var,
+        Func,
+    };
+
     /// @brief A possible contained value of a `Token`. Not intended for use in external code.
     union _TokenValue
     {
@@ -23,7 +38,7 @@ namespace nexsys
     struct Token 
     {
     private:
-        size_t type;
+        TokenType type;
         _TokenValue value;
 
     public:
@@ -66,6 +81,10 @@ namespace nexsys
         /// @brief Creates a new token for a function
         /// @return a new `Token` 
         static Token func(size_t argc, double (*value)(double[]));
+
+        /// @brief Provides read-only visibility to this `Token`'s type.
+        /// @return this `Token`'s `TokenType`
+        TokenType get_type();
 
         /// @brief Unwraps a constant `Token`, if possible.
         /// @param value A read/write reference to hold the wrapped `double` value

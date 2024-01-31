@@ -5,21 +5,6 @@ using std::move;
 
 namespace nexsys
 {
-    /// @brief The different legal tokens that may be found in a math expression
-    enum TokenType
-    {
-        Plus,
-        Minus,
-        Mul,
-        Div,
-        Exp,
-        LeftParenthesis,
-        Comma,
-        Num,
-        Var,
-        Func,
-    };
-
     /// @brief Helper function to convert a token's value to a function.
     static FunctionDataPtr to_function(_TokenValue value) noexcept
     {
