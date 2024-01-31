@@ -1,5 +1,5 @@
-#ifndef CONTEXT_HPP_
-#define CONTEXT_HPP_
+#ifndef _CONTEXT_HPP
+#define _CONTEXT_HPP
 
 #include <string>
 #include <unordered_map>
