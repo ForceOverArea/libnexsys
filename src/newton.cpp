@@ -7,8 +7,6 @@ using std::vector;
 
 namespace nexsys 
 {
-    constexpr double DX = 0.0001;
-
     double newton_raphson(
         function<double (double)> func, 
         double guess, 
@@ -40,16 +38,6 @@ namespace nexsys
         }
         
         return newton_raphson(func, guess - delta, min, max, margin, limit - 1);
-    }
-
-    inline double newton_raphson(function<double (double)> func, double margin, size_t limit)
-    {
-        return newton_raphson(func, 1.0, -INFINITY, INFINITY, margin, limit);
-    }
-
-    inline double newton_raphson(function<double (double)> func)
-    {
-        return newton_raphson(func, 0.0001, 100);
     }
 
     unordered_map<string, double> newton_raphson_multivariate(
@@ -147,10 +135,5 @@ namespace nexsys
         }
 
         return newton_raphson_multivariate(system, guess, margin, limit - 1);
-    }
-
-    inline std::unordered_map<std::string, double> newton_raphson_multivariate(std::vector<std::function<double (std::unordered_map<std::string, double>)>> system, unordered_map<string, double> guess)
-    {
-        return newton_raphson_multivariate(system, guess, 0.0001, 100);
     }
 }

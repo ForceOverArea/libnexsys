@@ -6,6 +6,9 @@
 
 namespace nexsys 
 {
+    /// @brief A constant used by `nexsys` newton-raphson solver functions. It represents the quantity represented by 'dx' in calculus.
+    constexpr double DX = 0.0001;
+
     /// @brief Finds the root of a function of a single unknown variable.
     /// @param func The function whose root should be found
     /// @param guess The initial guess value for the root of the function
