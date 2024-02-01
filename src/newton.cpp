@@ -2,6 +2,7 @@
 #include "newton.hpp"
 
 using std::function;
+using std::regex;
 using std::string;
 using std::unordered_map;
 using std::vector;
@@ -105,7 +106,7 @@ namespace nexsys
             auto var_val = guess.find(vars[j]);
             if (var_val == guess.end())
             {
-                throw; // TODO - failed to find variable that should be in guess map. see line 136 of newton.rs for context
+                throw; // TODO - This should never be thrown, but might be worth keeping for safety
             }
 
             var_val->second += DX;
@@ -147,6 +148,11 @@ namespace nexsys
             var_val.second -= deltas.get_index(i, 0);
         }
 
-        return newton_raphson_multivariate(system, guess, margin, limit);
+        return newton_raphson_multivariate(system, guess, margin, limit - 1);
+    }
+
+    inline std::unordered_map<std::string, double> newton_raphson_multivariate(std::vector<std::function<double (std::unordered_map<std::string, double>)>> system, unordered_map<string, double> guess)
+    {
+        return newton_raphson_multivariate(system, guess, 0.0001, 100);
     }
 }
