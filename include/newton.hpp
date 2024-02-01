@@ -1,13 +1,7 @@
 #ifndef _NEWTON_HPP
 #define _NEWTON_HPP
 
-#include <cmath>
-#include <functional>
-#include <regex>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
+#include "matrix.hpp"
 #include "shunting.hpp" // also includes "context.hpp", "variable.hpp"
 
 namespace nexsys 

@@ -3,13 +3,8 @@
 
 #include <functional>
 #include <iterator>
-#include <math.h>
 #include <sstream>
 #include <stdlib.h>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 #include "context.hpp" // also includes "variable.hpp"
 

@@ -1,8 +1,6 @@
-#include "matrix.hpp"
 #include "newton.hpp"
 
 using std::function;
-using std::regex;
 using std::string;
 using std::unordered_map;
 using std::vector;
