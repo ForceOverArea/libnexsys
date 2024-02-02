@@ -77,7 +77,7 @@ int main() \
     } \
     std::cout << '\n' << "TEST RESULTS:" << '\n'; \
     std::cout << "[ PASSED: " << __passed_ << "/" << __tested_ << " ]" << ((__passed_ == __tested_) ? " :)" : "") << '\n'; \
-    std::cout << "[ FAILED: " << __failed_ << "/" << __tested_ << " ]" << '\n'; \
+    std::cout << "[ FAILED: " << __failed_ << "/" << __tested_ << " ]" << "\n\n"; \
     return 0; \
 }
 
