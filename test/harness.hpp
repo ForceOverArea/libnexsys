@@ -52,7 +52,7 @@ std::string __err_msg_w_line_no(int line)
         name = __func__; \
         __ ## test_name ## _internal(); \
     } \
-    int _ = __add_test(test_name); \
+    int __add_ ## test_name = __add_test(test_name); \
     void __ ## test_name ## _internal()
 
 /// @brief Throws a `std::runtime_error` if the values aren't equal
@@ -73,7 +73,6 @@ int main() \
 { \
     for (auto test: __tests_) \
     { \
-        std::cout << "running test" << '\n'; \
         __run_test(test); \
     } \
     std::cout << "[ PASSED: " << __passed_ << "/" << __tested_ << " ]" << ((__passed_ == __tested_) ? " :)" : "") << '\n'; \
