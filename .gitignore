@@ -1,4 +1,5 @@
 bin/obj/*
 bin/build/*
+bin/test/*
 .vscode
 .VSCodeCounter
