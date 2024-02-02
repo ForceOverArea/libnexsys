@@ -29,12 +29,12 @@ std::string __err_msg_w_line_no(int line)
         { \
             test(name); \
             __passed_++; \
-            std::cout << "[ PASSED ]......" << name << '\n'; \
+            std::cout << "[ PASS ]......" << name << '\n'; \
         } \
         catch(const std::exception& e) \
         { \
             __failed_++; \
-            std::cerr << "[ FAILED ]......" << name << "......" << e.what() << '\n'; \
+            std::cerr << "[ FAIL ]......" << name << "......" << e.what() << '\n'; \
         } \
     } \
     \
@@ -75,6 +75,7 @@ int main() \
     { \
         __run_test(test); \
     } \
+    std::cout << '\n' << "TEST RESULTS:" << '\n'; \
     std::cout << "[ PASSED: " << __passed_ << "/" << __tested_ << " ]" << ((__passed_ == __tested_) ? " :)" : "") << '\n'; \
     std::cout << "[ FAILED: " << __failed_ << "/" << __tested_ << " ]" << '\n'; \
     return 0; \
