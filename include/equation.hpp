@@ -1,11 +1,13 @@
 #ifndef _EQUATION_HPP
 #define _EQUATION_HPP
 
-#include "newton.hpp"
+#include <regex>
+
+#include "newton.hpp" // also includes "shunting.hpp", "context.hpp", "variable.hpp"
 
 namespace nexsys
 {
-    get_variables_in_equation()
+    std::vector<std::string> get_variables_in_equation(std::string equation);
 }
 
 #endif
