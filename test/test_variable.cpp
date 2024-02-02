@@ -18,7 +18,7 @@ TEST(sub_assign_does_not_go_past_bound)
     ASSERT_EQ(var.get_value(), 0)
 }
 
-TEST(sub_assign_does_works_within_bounds)
+TEST(add_assign_does_works_within_bounds)
 {
     Variable var(0, 0, 10);
     var += 5;
