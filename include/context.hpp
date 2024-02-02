@@ -109,9 +109,10 @@ namespace nexsys
 
         Token(const Token& other) 
         {
-            this->type = other.type;
-            this->value = other.value;
+            type = other.type;
+            value = other.value;
         }
+        
         Token operator=(const Token& rhs) 
         {
             return Token(rhs);
@@ -131,7 +132,10 @@ namespace nexsys
 
         void add_var_to_ctx(std::string symbol, Variable* value);
 
-        inline void add_var_to_ctx(std::string symbol);
+        inline void add_var_to_ctx(std::string symbol)
+        {
+            add_var_to_ctx(symbol, new Variable());
+        }
 
         void add_func_to_ctx(std::string symbol, size_t argc, double (*value)(double[]));
 

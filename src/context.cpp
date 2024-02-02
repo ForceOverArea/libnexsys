@@ -1,4 +1,5 @@
 #include "context.hpp"
+#include <iostream>
 
 using std::move;
 using std::pair;
@@ -140,7 +141,7 @@ namespace nexsys
 
     TokenType Token::get_type() const
     {
-        return this->type;
+        return type;
     }
 
     bool Token::try_unwrap_num(double& value) const
@@ -200,11 +201,6 @@ namespace nexsys
         ));
     }
 
-    inline void ContextMap::add_var_to_ctx(string symbol)
-    {
-        add_var_to_ctx(symbol, new Variable());
-    }
-
     void ContextMap::add_func_to_ctx(string symbol, size_t argc, double (*value)(double[]))
     {
         this->insert(move(
@@ -225,13 +221,41 @@ namespace nexsys
         }
     }
 
+    /// @brief 
+    /// @param expr 
+    /// @param result 
+    /// @return 
+    bool try_parse_double(string expr, double& result)
+    {
+        result = strtod(expr.c_str(), NULL);
+        if (result == 0)
+        {
+            for (char c: expr)
+            {
+                if (c != '0' && c != '.')
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     bool try_tokenize(std::string token_like, Token &token) noexcept
     {
+        double maybe_num;
         if (token_like.size() != 1)
         {
+            if (try_parse_double(token_like, maybe_num))
+            {
+                token = move(Token::num(maybe_num));
+                return true;
+            }
             return false;
         }
 
+        // std::cout << token_like.size();
+        // std::cout << token_like[0] << '\n'; 
         switch(token_like[0])
         {
             case '+':

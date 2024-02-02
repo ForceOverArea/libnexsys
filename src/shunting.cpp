@@ -73,25 +73,7 @@ namespace nexsys
         return output_expr;
     }
 
-    /// @brief 
-    /// @param expr 
-    /// @param result 
-    /// @return 
-    static bool try_parse_double(string expr, double& result)
-    {
-        result = strtod(expr.c_str(), NULL);
-        if (result == 0)
-        {
-            for (char c: expr)
-            {
-                if (c != '0' && c != '.')
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    extern bool try_parse_double(string expr, double& result);
 
     static vector<Token> rpnify(string expr, ContextMap ctx)
     {
