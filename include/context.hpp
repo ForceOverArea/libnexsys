@@ -103,20 +103,6 @@ namespace nexsys
         /// @param value A read/write reference to hold the wrapped function pointer value
         /// @return A `bool` indicating success or failure.
         bool try_unwrap_func(size_t& argc, double (*&value)(double[])) const;
-
-        Token() {}
-        ~Token() {}
-
-        Token(const Token& other) 
-        {
-            type = other.type;
-            value = other.value;
-        }
-        
-        Token operator=(const Token& rhs) 
-        {
-            return Token(rhs);
-        }
     };
 
     /// @brief Similar to `std::unordered_map`, but with additional methods for specifying 

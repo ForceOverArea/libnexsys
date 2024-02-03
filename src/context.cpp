@@ -253,9 +253,7 @@ namespace nexsys
             }
             return false;
         }
-
-        // std::cout << token_like.size();
-        // std::cout << token_like[0] << '\n'; 
+        
         switch(token_like[0])
         {
             case '+':

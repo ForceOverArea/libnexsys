@@ -30,15 +30,14 @@ TEST(contextmap_can_add_tokens_as_expected)
 TEST(try_tokenize_creates_correct_tokens) // TODO: Something smells undefined here... test fails on different lines w/ no changes...
 {
     Token tok;
-    try_tokenize("+", tok);
-    ASSERT_EQ(tok.get_type(), TokenType::Plus)
+    ASSERT(try_tokenize("+", tok));
+    ASSERT_EQ(tok.get_type(), TokenType::Plus) // fails here sometimes...
 
-    Token tok2;
-    try_tokenize("-", tok2);
-    ASSERT_EQ(tok.get_type(), TokenType::Minus)
+    ASSERT(try_tokenize("-", tok));
+    ASSERT_EQ(tok.get_type(), TokenType::Minus) // fails here sometimes too...
 
-    try_tokenize("2.0", tok);
-    ASSERT_EQ(tok.get_type(), TokenType::Num)
+    ASSERT(try_tokenize("2.0", tok));
+    ASSERT_EQ(tok.get_type(), TokenType::Num) // also failed here when pasted up top...
 }
 
 RUN_TESTS
